@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import ConnectDB from "./Db/db.js";
+import { app } from "./utils/App.js";
 
 
 dotenv.config();
@@ -18,4 +19,4 @@ ConnectDB().then(()=>{
 
     console.log("Failed to connect to the database", error);
 }
-);
+);  

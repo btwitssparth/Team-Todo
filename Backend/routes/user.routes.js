@@ -13,6 +13,9 @@ router.route("/register").post(
         }
     ]),registeruser
 
+
 )
+router.route("/login").post(loginuser)
+router.route("/logout").post(verifyJwt,logoutuser)
 
 export default router;

@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   fullname: {
     type: String,
     required: true,
-    unique: true,
+   
     trim: true,
   },
   email: {
@@ -54,6 +54,12 @@ userSchema.methods.generateRefreshToken= function(){
     },process.env.REFRESH_TOKEN_SECRET,{
         expiresIn:process.env.REFRESH_TOKEN_EXPIRY
     })
+
+
 }
+
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 export const User = mongoose.model("User", userSchema); 

@@ -1,19 +1,11 @@
 import { useState } from "react";
 import { Eye, EyeOff, Upload, User, Mail, Lock, Camera } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 function Register() {
-  // Simulated navigate function for demo
-  const navigate = (path) => console.log(`Navigating to ${path}`);
+  const navigate = useNavigate();
   
-  // Simulated API call for demo
-  const api = {
-    post: async (url, data, config) => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return { data: { message: "Registration successful!" } };
-    }
-  };
-
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,14 +39,20 @@ function Register() {
       formData.append("password", password);
       if (avatar) formData.append("avatar", avatar);
 
+      // Use the real API instead of simulated one
       const res = await api.post("/users/register", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert(res.data.message || "Registered successfully!");
-      navigate("/login");
+      // Backend now returns tokens on registration
+      if (res.data.data?.accesstoken) {
+        localStorage.setItem("token", res.data.data.accesstoken);
+      }
+
+      alert(res.data.message || "Registration successful! Welcome aboard!");
+      navigate("/dashboard");
     } catch (err) {
-      console.error(err.response?.data);
+      console.error("Registration error:", err);
       setError(err.response?.data?.message || "Registration failed");
     } finally {
       setIsLoading(false);
@@ -85,7 +83,7 @@ function Register() {
           </div>
 
           {/* Form */}
-          <div className="space-y-6">
+          <form onSubmit={handleRegister} className="space-y-6">
             {/* Avatar Upload */}
             <div className="flex justify-center">
               <div className="relative group">
@@ -174,7 +172,7 @@ function Register() {
 
             {/* Submit Button */}
             <button
-              onClick={handleRegister}
+              type="submit"
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
             >
@@ -187,13 +185,14 @@ function Register() {
                 "Create Account"
               )}
             </button>
-          </div>
+          </form>
 
           {/* Footer */}
           <div className="text-center pt-6 border-t border-gray-100">
             <p className="text-gray-600">
               Already have an account?{" "}
               <button
+                type="button"
                 onClick={() => navigate("/login")}
                 className="text-indigo-600 hover:text-indigo-700 font-semibold transition-colors"
               >
@@ -211,8 +210,6 @@ function Register() {
           <a href="#" className="text-indigo-600 hover:text-indigo-700 transition-colors">Privacy Policy</a>
         </p>
       </div>
-
-
     </div>
   );
 }
